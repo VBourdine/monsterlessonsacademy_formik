@@ -6,6 +6,7 @@ const App = () => {
     email: "",
     username: "",
     password: "",
+    passwordCheck: "",
   };
   const onSubmit = (values) => {
     console.log("onSubmit", values);
@@ -15,9 +16,26 @@ const App = () => {
     email: Yup.string()
       .required("Email is required")
       .email("Invalid email adress"),
-    password: Yup.string().required("Password is required"),
+    password: Yup.string()
+      /* (  # Start of group
+(?=.*\d)    # must contains one digit from 0-9
+(?=.*[a-z]) # must contains one lowercase characters
+(?=.*[\W])  # must contains at least one special character
+.           # match anything with previous condition checking
+{5,20}      # length at least 5 characters and maximum of 20 
+)           # End of group */
+      .matches(/(?=.*\d)/, "Passwort muss eine Zahl enthalten!")
+      .matches(
+        /(?=.*[a-zA-Z])/,
+        "Passwort muss einen Klein- oder Großbuchstaben enthalten!"
+      )
+      .matches(/(?=.*[\W])/, "Passwort muss ein Sonderzeichen enthalten!")
+      .matches(/(.{5,20})/, "Passwort muss 5-20 Zeichen lang sein!")
+      .required("Password is required"),
     username: Yup.string().required("Username is required"),
-  });
+    passwordCheck: Yup.mixed().oneOf([Yup.ref("password")], "Passwörter müssen gleich sein!"
+    )
+  })
   // const formik = useFormik({
   //   initialValues: {
   //     email: "",
@@ -75,6 +93,12 @@ const App = () => {
               <Field name="password" placeholder="Password" type="password" />
               <div className="error">
                 <ErrorMessage name="password" component="span" />
+              </div>
+            </div>
+            <div className="field">
+              <Field name="passwordCheck" placeholder="Password check" type="password" />
+              <div className="error">
+                <ErrorMessage name="passwordCheck" component="span" />
               </div>
             </div>
             <button type="submit">Submit</button>
